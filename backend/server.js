@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/db'); // Sequelize instance
 const authRoutes = require('./routes/auth');
+const { sequelize } = require('./models');
 require('./models/User'); // import model so Sequelize knows it
 
 const app = express();
@@ -25,6 +26,18 @@ app.get('/test', async (req, res) => {
   }
 });
 
+async function init() {
+  try {
+    await sequelize.authenticate();
+    console.log('DB connected');
+    // use alter:true for safe incremental changes in dev (not recommended in prod)
+    await sequelize.sync({ alter: true });
+    console.log('All models synced');
+  } catch (err) {
+    console.error(err);
+  }
+}
+init();
 // Start server + connect DB
 const PORT = process.env.PORT || 5000;
 
