@@ -1,6 +1,7 @@
-const sequelize = require('../config/db');
+// backend/models/index.js
+const { sequelize } = require('../config/db'); // ✅ destructure karo
 
-// import models
+// Import all models
 const User = require('./User');
 const Category = require('./Category');
 const Product = require('./Product');
@@ -12,7 +13,7 @@ const PurchaseOrder = require('./PurchaseOrder');
 const PurchaseOrderItem = require('./PurchaseOrderItem');
 const StockAdjustment = require('./StockAdjustment');
 
-// Associations
+// ==================== ASSOCIATIONS ====================
 
 // Category <-> Product
 Category.hasMany(Product, { foreignKey: 'category_id', as: 'products' });
@@ -50,7 +51,9 @@ PurchaseOrderItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' }
 User.hasMany(StockAdjustment, { foreignKey: 'adjusted_by', as: 'stockAdjustments' });
 StockAdjustment.belongsTo(User, { foreignKey: 'adjusted_by', as: 'adjustedBy' });
 
-// If you want, export all models in one object
+console.log('✅ All model associations defined');
+
+// Export all models
 module.exports = {
   sequelize,
   User,

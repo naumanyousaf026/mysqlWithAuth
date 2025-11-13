@@ -1,6 +1,6 @@
 // backend/models/User.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db'); // ✅ destructure karo
 
 const User = sequelize.define('User', {
   id: {
@@ -22,8 +22,8 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
 }, {
-  tableName: 'users', // matches your MySQL table
-  timestamps: true,
+  tableName: 'users',
+  timestamps: true, // createdAt, updatedAt columns
 });
 
 module.exports = User;
