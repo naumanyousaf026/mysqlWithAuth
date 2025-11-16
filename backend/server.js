@@ -5,7 +5,7 @@ const { sequelize, initDatabase } = require('./config/db');
 const authRoutes = require('./routes/auth');
 const User = require('./models/User'); // Model import karo
 const index=require('./models/index');
-const { userRouter, categoryRouter, productRouter, customerRouter, transactionRouter, paymentRouter, supplierRouter, poRouter, poItemRouter, stockAdjRouter } = require('./routes/allRoutes');
+const {categoryRouter, productRouter, customerRouter, transactionRouter, paymentRouter, supplierRouter, poRouter, poItemRouter,stockRouter} = require('./routes/allRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,7 +17,6 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-  app.use('/api/users', userRouter);
   app.use('/api/categories', categoryRouter);
   app.use('/api/products', productRouter);
   app.use('/api/customers', customerRouter);
@@ -26,7 +25,7 @@ app.use('/api/auth', authRoutes);
   app.use('/api/suppliers', supplierRouter);
   app.use('/api/purchase-orders', poRouter);
   app.use('/api/purchase-order-items', poItemRouter);
-  app.use('/api/stock-adjustments', stockAdjRouter);
+  app.use('/api/stock-adjustments', stockRouter);
 // Test route
 app.get('/test', async (req, res) => {
   try {

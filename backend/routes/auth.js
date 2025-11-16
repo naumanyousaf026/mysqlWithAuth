@@ -1,12 +1,14 @@
+// backend/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // Sequelize model
 
 // Register new user
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, role } = req.body;
 
     // check if user already exists
     const existing = await User.findOne({ where: { email } });
@@ -16,9 +18,13 @@ router.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     // create new user
-    const newUser = await User.create({ name, email, password: hash });
+    const newUser = await User.create({ name, email, password: hash, phone, role });
 
-    res.json({ message: '✅ User registered successfully', user: newUser });
+    // remove password before sending response
+    const userSafe = { ...newUser.toJSON() };
+    delete userSafe.password;
+
+    res.json({ message: '✅ User registered successfully', user: userSafe });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: '❌ Server error' });
@@ -38,17 +44,37 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    res.json({ message: '✅ Login successful', user });
+    // create JWT payload (keep it small)
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role || 'user'
+    };
+
+    // sign token
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'devsecret', {
+      expiresIn: '8h' // adjust as needed
+    });
+
+    // return token + sanitized user
+    const userSafe = { ...user.toJSON() };
+    delete userSafe.password;
+
+    res.json({
+      message: '✅ Login successful',
+      token,
+      user: userSafe
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: '❌ Server error' });
   }
 });
 
-//  Get all users
+// Get all users (protected example) - optional
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({ attributes: { exclude: ['password'] } });
     res.json(users);
   } catch (err) {
     console.error(err);
